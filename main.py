@@ -36,11 +36,11 @@ def log(*args):
 def send_mail(content, to_addr):
 
     from_addr = "591210216@qq.com"
-    password = "daokuynnvgzabbjf"
+    password = "********"
     smtp_server = "smtp.qq.com"
 
     msg = MIMEText(content, 'plain', 'utf-8')
-    msg['From'] = "李先生"
+    msg['From'] = "Python Daemon"
     msg['To'] = to_addr
     msg['Subject'] = "疫情更新"
 
@@ -63,19 +63,29 @@ def get_statistics():
 
     return statistics
 
+
+
 if __name__ == "__main__":
 
     first_check = True
-    seen = {
-        "confirmedCount": 0,
-        "suspectedCount": 0,
-        "deadCount": 0,
-        "curedCount": 0,
-    }
+
+	try:
+		with open("cache.json", "r") as file:
+			seen = json.loads(file.read())
+			first_check = False
+			print("Cache loaded successfully")
+	except:
+		seen = {
+		    "confirmedCount": 0,
+		    "suspectedCount": 0,
+		    "deadCount": 0,
+		    "curedCount": 0
+		}
 
     while True:
         log("Checking...")
         stat = get_statistics()
+        save_to_file(stat)
 
         changed = (stat["confirmedCount"] != seen["confirmedCount"]) or (stat["deadCount"] != seen["deadCount"]) or (stat["curedCount"] != seen["curedCount"])
         if changed:
